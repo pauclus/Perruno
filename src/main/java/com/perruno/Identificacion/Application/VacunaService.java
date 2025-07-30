@@ -9,13 +9,13 @@ import com.perruno.Identificacion.Domain.Vacuna;
 import com.perruno.Identificacion.Domain.VacunaPerro;
 import com.perruno.Identificacion.Domain.Notificaciones;
 import com.perruno.Identificacion.Domain.Notificaciones.Tipo;
+import com.perruno.Identificacion.Domain.Perro;
 import com.perruno.Identificacion.Infrastructure.VacunaRepository;
 import com.perruno.Identificacion.Infrastructure.VacunaPerroRepository;
 import com.perruno.Identificacion.Infrastructure.NotificacionesRepository;
-import com.perruno.Identificacion.Infrastructure.UsuarioPerroRepository;
+import com.perruno.Identificacion.Infrastructure.PerroRepository;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.temporal.ChronoUnit;
 
 @Service
@@ -31,7 +31,7 @@ public class VacunaService {
     private NotificacionesRepository notificacionesRepository;
     
     @Autowired
-    private UsuarioPerroRepository usuarioPerroRepository;
+    private PerroRepository perroRepository;
     
     /**
      * Crea una nueva vacuna en el sistema
@@ -51,19 +51,22 @@ public class VacunaService {
         
         return vacunaPerroRepository.save(vacunaPerro)
             .flatMap(vacunaRegistrada -> {
-                // Notificar al dueño principal sobre la vacuna aplicada
-                return usuarioPerroRepository.findDueñoPrincipal(vacunaPerro.getIdPerro())
-                    .flatMap(usuarioPerro -> {
-                        Notificaciones notificacion = new Notificaciones();
-                        notificacion.setIdUsuario(usuarioPerro.getId().getIdUsuario());
-                        notificacion.setMensaje("Se ha registrado una nueva vacuna para tu mascota");
-                        notificacion.setLeida(false);
-                        notificacion.setTipo(Tipo.vacuna);
-                        
-                        return notificacionesRepository.save(notificacion)
-                            .thenReturn(vacunaRegistrada);
+                // Notificar al dueño sobre la vacuna aplicada
+                return perroRepository.findById(vacunaPerro.getIdPerro())
+                    .flatMap(perro -> {
+                        if (perro.getIdDueño() != null) {
+                            Notificaciones notificacion = new Notificaciones();
+                            notificacion.setIdUsuario(perro.getIdDueño());
+                            notificacion.setMensaje("Se ha registrado una nueva vacuna para tu mascota");
+                            notificacion.setLeida(false);
+                            notificacion.setTipo(Tipo.vacuna);
+                            
+                            return notificacionesRepository.save(notificacion)
+                                .thenReturn(vacunaRegistrada);
+                        }
+                        return Mono.just(vacunaRegistrada);
                     })
-                    .defaultIfEmpty(vacunaRegistrada); // En caso de no encontrar dueño principal
+                    .defaultIfEmpty(vacunaRegistrada); // En caso de no encontrar el perro
             });
     }
     
@@ -101,17 +104,20 @@ public class VacunaService {
         
         return vacunaPerroRepository.findByFechaVencimientoBetween(hoy, enUnMes)
             .flatMap(vacunaPerro -> {
-                return usuarioPerroRepository.findDueñoPrincipal(vacunaPerro.getIdPerro())
-                    .flatMap(usuarioPerro -> {
-                        Notificaciones notificacion = new Notificaciones();
-                        notificacion.setIdUsuario(usuarioPerro.getId().getIdUsuario());
-                        
-                        long diasRestantes = ChronoUnit.DAYS.between(hoy, vacunaPerro.getFechaVencimiento());
-                        notificacion.setMensaje("Una vacuna de tu mascota vencerá en " + diasRestantes + " días");
-                        notificacion.setLeida(false);
-                        notificacion.setTipo(Tipo.recordatorio);
-                        
-                        return notificacionesRepository.save(notificacion);
+                return perroRepository.findById(vacunaPerro.getIdPerro())
+                    .flatMap(perro -> {
+                        if (perro.getIdDueño() != null) {
+                            Notificaciones notificacion = new Notificaciones();
+                            notificacion.setIdUsuario(perro.getIdDueño());
+                            
+                            long diasRestantes = ChronoUnit.DAYS.between(hoy, vacunaPerro.getFechaVencimiento());
+                            notificacion.setMensaje("Una vacuna de tu mascota vencerá en " + diasRestantes + " días");
+                            notificacion.setLeida(false);
+                            notificacion.setTipo(Tipo.vacuna);
+                            
+                            return notificacionesRepository.save(notificacion);
+                        }
+                        return Mono.empty();
                     });
             });
     }

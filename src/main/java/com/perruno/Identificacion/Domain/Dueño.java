@@ -10,24 +10,20 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@Table("usuarios")
-public class Usuario {
+@Table("dueños")
+public class Dueño {
 
     @Id
-    private Integer idUsuario;
+    private Integer idDueño;
 
     private String nombre;
     private String email;
     private String telefono;
     private String direccion;
 
-    private Rol rol;
 
     @Column("fecha_registro")
     private LocalDateTime fechaRegistro;
 
-    public enum Rol {
-        propietario,
-        admin
-    }
+
 }

@@ -1,4 +1,4 @@
-package com.perruno.Identificacion.Infrastructure;
+package com.perruno.Identificacion.Infrastructure.Custom;
 
 import com.perruno.Identificacion.Domain.Perro;
 import reactor.core.publisher.Flux;
@@ -14,5 +14,5 @@ public interface PerroRepositoryCustom {
      * @param tamaño Tamaño del perro (opcional)
      * @return Flux de perros que coinciden con los criterios
      */
-    Flux<Perro> buscarPerros(String nombre, String raza, Integer edad, String color, Perro.Tamaño tamaño);
+    Flux<Perro> buscarPerros(String nombre, Integer dueñoId, String raza, Integer edad, String color, Perro.Comportamiento comportamiento, Perro.Tamaño tamaño, String ubicacion);
 }

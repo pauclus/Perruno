@@ -1,6 +1,8 @@
-package com.perruno.Identificacion.Infrastructure;
+package com.perruno.Identificacion.Infrastructure.Impl;
 
 import com.perruno.Identificacion.Domain.Perro;
+import com.perruno.Identificacion.Infrastructure.Custom.PerroRepositoryCustom;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Repository;
@@ -16,7 +18,7 @@ public class PerroRepositoryImpl implements PerroRepositoryCustom {
     private DatabaseClient databaseClient;
 
     @Override
-    public Flux<Perro> buscarPerros(String nombre, String raza, Integer edad, String color, Perro.Tamaño tamaño) {
+    public Flux<Perro> buscarPerros(String nombre, Integer dueñoId, String raza, Integer edad, String color, Perro.Comportamiento comportamiento, Perro.Tamaño tamaño, String ubicacion) {
         StringBuilder query = new StringBuilder("SELECT * FROM perros WHERE LOWER(nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))");
         List<Object> params = new ArrayList<>();
         params.add(nombre);
@@ -61,6 +63,18 @@ public class PerroRepositoryImpl implements PerroRepositoryCustom {
         
         if (tamaño != null) {
             executeSpec = executeSpec.bind("tamaño", tamaño.toString());
+        }
+        
+        if (comportamiento != null) {
+            executeSpec = executeSpec.bind("comportamiento", comportamiento.toString());
+        }
+        
+        if (ubicacion != null) {
+            executeSpec = executeSpec.bind("ubicacion", ubicacion);
+        }
+
+        if (dueñoId != null) {
+            executeSpec = executeSpec.bind("id_dueño", dueñoId);
         }
         
         // Ejecutar la consulta y mapear los resultados a objetos Perro

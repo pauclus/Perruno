@@ -6,10 +6,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import com.perruno.Identificacion.Domain.Perro;
-import com.perruno.Identificacion.Domain.UsuarioPerro;
-import com.perruno.Identificacion.Domain.UsuarioPerro.UsuarioPerroKey;
+import com.perruno.Identificacion.Domain.Dueño;
 import com.perruno.Identificacion.Infrastructure.PerroRepository;
-import com.perruno.Identificacion.Infrastructure.UsuarioPerroRepository;
+import com.perruno.Identificacion.Infrastructure.DueñoRepository;
 
 import java.time.LocalDateTime;
 
@@ -20,29 +19,18 @@ public class PerroService {
     private PerroRepository perroRepository;
     
     @Autowired
-    private UsuarioPerroRepository usuarioPerroRepository;
+    private DueñoRepository dueñoRepository;
     
     /**
-     * Registra un nuevo perro y lo asocia a un usuario como dueño principal
+     * Registra un nuevo perro asociándolo directamente a un dueño
      */
-    public Mono<Perro> registrarPerro(Perro perro, Integer idUsuario) {
-        // Establecer fecha de registro y estado inicial
+    public Mono<Perro> registrarPerro(Perro perro, Integer idDueño) {
+        // Establecer fecha de registro, estado inicial y dueño
         perro.setFechaRegistro(LocalDateTime.now());
         perro.setEstado(Perro.Estado.activo);
+        perro.setIdDueño(idDueño);
         
-        return perroRepository.save(perro)
-            .flatMap(perroGuardado -> {
-                // Crear la relación usuario-perro
-                UsuarioPerro usuarioPerro = new UsuarioPerro();
-                UsuarioPerroKey key = new UsuarioPerroKey();
-                key.setIdUsuario(idUsuario);
-                key.setIdPerro(perroGuardado.getIdPerro());
-                usuarioPerro.setId(key);
-                usuarioPerro.setEsDueñoPrincipal(true);
-                
-                return usuarioPerroRepository.save(usuarioPerro)
-                    .thenReturn(perroGuardado);
-            });
+        return perroRepository.save(perro);
     }
     
     /**
@@ -79,6 +67,9 @@ public class PerroService {
                 if (perroActualizado.getEstado() != null) {
                     perroExistente.setEstado(perroActualizado.getEstado());
                 }
+                if (perroActualizado.getIdDueño() != null) {
+                    perroExistente.setIdDueño(perroActualizado.getIdDueño());
+                }
                 
                 return perroRepository.save(perroExistente);
             });
@@ -99,10 +90,21 @@ public class PerroService {
     }
     
     /**
-     * Obtiene todos los perros de un usuario
+     * Obtiene todos los perros de un dueño
      */
-    public Flux<Perro> obtenerPerrosPorUsuario(Integer idUsuario) {
-        return usuarioPerroRepository.findByIdIdUsuario(idUsuario)
-            .flatMap(usuarioPerro -> perroRepository.findById(usuarioPerro.getId().getIdPerro()));
+    public Flux<Perro> obtenerPerrosPorDueño(Integer idDueño) {
+        return perroRepository.findAll()
+            .filter(perro -> perro.getIdDueño() != null && perro.getIdDueño().equals(idDueño));
+    }
+    
+    /**
+     * Cambia el dueño de un perro
+     */
+    public Mono<Perro> cambiarDueño(Integer idPerro, Integer nuevoDueñoId) {
+        return perroRepository.findById(idPerro)
+            .flatMap(perro -> {
+                perro.setIdDueño(nuevoDueñoId);
+                return perroRepository.save(perro);
+            });
     }
 }

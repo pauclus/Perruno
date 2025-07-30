@@ -15,12 +15,15 @@ public class Perro {
 
     @Id
     private Integer idPerro;
-
+    
+    @Column("id_dueño")
+    private Integer idDueño;
     private String nombre;
     private String raza;
     private Integer edad;
     private String color;
-
+    private String ubicacion;
+    private Comportamiento comportamiento;
     private Tamaño tamaño;
 
     @Column("foto_url")
@@ -44,5 +47,10 @@ public class Perro {
     public enum Estado {
         activo, perdido, adoptado
     }
+
+    public enum Comportamiento{
+        tranquilo, juguetón, agresivo, ansioso, entrenado
+    }
+
 }
 
