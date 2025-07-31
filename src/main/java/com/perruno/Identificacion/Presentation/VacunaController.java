@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import com.perruno.Identificacion.Domain.Notificaciones;
 import com.perruno.Identificacion.Domain.Vacuna;
 import com.perruno.Identificacion.Domain.VacunaPerro;
 import com.perruno.Identificacion.Application.VacunaService;
@@ -93,11 +94,5 @@ public class VacunaController {
         return vacunaService.estimarTiempoRestanteVacuna(idVacunaPerro);
     }
     
-    /**
-     * Verifica las vacunas próximas a vencer y genera notificaciones
-     */
-    @PostMapping("/verificar-vencimientos")
-    public Flux<Notificaciones> verificarVacunasPorVencer() {
-        return vacunaService.verificarVacunasPorVencer();
-    }
+
 }

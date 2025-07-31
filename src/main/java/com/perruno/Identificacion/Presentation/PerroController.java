@@ -23,7 +23,7 @@ public class PerroController {
     /**
      * Crea un nuevo perro y lo asocia a un usuario como dueño principal
      */
-    @PostMapping
+    @PostMapping("/crear")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Perro> crearPerro(@RequestBody Perro perro, @RequestParam Integer idUsuario) {
         return perroService.registrarPerro(perro, idUsuario);
