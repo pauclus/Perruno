@@ -1,10 +1,14 @@
 package com.perruno.Identificacion.Presentation;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import com.perruno.Identificacion.Domain.Perro;
 import com.perruno.Identificacion.Application.PerroService;
@@ -69,6 +73,12 @@ public class PerroController {
     public Flux<Perro> obtenerPerrosPorUsuario(@PathVariable Integer idUsuario) {
         return perroService.obtenerPerrosPorDueño(idUsuario);
     }
+
+    @GetMapping("/por-raza")
+    public Flux<Integer> contarPorRazas(@RequestBody List<String> razas) {
+        return perroService.contarPerrosPorRazas(razas);
+    }
+
     
     /**
      * Busca perros por criterios

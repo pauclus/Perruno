@@ -58,9 +58,13 @@ public class DueñoService {
                 if (dueñoActualizado.getTelefono() != null) {
                     dueñoExistente.setTelefono(dueñoActualizado.getTelefono());
                 }
-                if (dueñoActualizado.getDireccion() != null) {
-                    dueñoExistente.setDireccion(dueñoActualizado.getDireccion());
-                }
+                if (dueñoActualizado.getLatitud() != null) {
+                    dueñoExistente.setLatitud(dueñoActualizado.getLatitud());
+                }  
+                if (dueñoActualizado.getLongitud() != null) {
+                    dueñoExistente.setLongitud(dueñoActualizado.getLongitud());
+                }              
+
                 
                 return dueñoRepository.save(dueñoExistente);
             });

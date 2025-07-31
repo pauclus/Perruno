@@ -14,7 +14,8 @@ public class Dueño {
     private String nombre;
     private String email;
     private String telefono;
-    private String direccion;
+    private Long latitud;
+    private Long longitud;
 
     @Column("fecha_registro")
     private LocalDateTime fechaRegistro;
@@ -53,13 +54,7 @@ public class Dueño {
         this.telefono = telefono;
     }
 
-    public String getDireccion() {
-        return direccion;
-    }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
 
     public LocalDateTime getFechaRegistro() {
         return fechaRegistro;
@@ -68,4 +63,21 @@ public class Dueño {
     public void setFechaRegistro(LocalDateTime fechaRegistro) {
         this.fechaRegistro = fechaRegistro;
     }
+
+    public Long getLatitud() {
+        return latitud;
+    }
+
+    public void setLatitud(Long latitud) {
+        this.latitud = latitud;
+    }
+
+    public Long getLongitud() {
+        return longitud;
+    }
+
+    public void setLongitud(Long longitud) {
+        this.longitud = longitud;
+    }
+
 }

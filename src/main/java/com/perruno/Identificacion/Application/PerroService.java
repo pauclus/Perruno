@@ -4,13 +4,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import com.perruno.Identificacion.Domain.Perro;
+import java.util.List;
 import com.perruno.Identificacion.Domain.Dueño;
 import com.perruno.Identificacion.Infrastructure.PerroRepository;
 import com.perruno.Identificacion.Infrastructure.DueñoRepository;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 public class PerroService {
@@ -107,4 +110,17 @@ public class PerroService {
                 return perroRepository.save(perro);
             });
     }
+
+
+    /**
+     * Contar por raza
+     */
+
+     public Flux<Integer> contarPerrosPorRazas(List<String> razas) {
+        return Flux.fromIterable(razas)
+                   .flatMap(raza -> perroRepository.countByRaza(raza));
+    }
+
+
+
 }
